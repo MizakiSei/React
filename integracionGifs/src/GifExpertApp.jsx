@@ -1,34 +1,41 @@
-import { useEffect, useState } from "react"
+import { useContext,useEffect, useState } from "react"
 import { SearchInput } from "./components/SearchInput";
-
+import { Context } from "./Context";
 
 //PROMISE DE TODA LA VIDA
 export const GifExpertApp = () => {
 
     const [arrGifsUrl, setData] = useState([]);
-
+    const { items, setItems } = useContext(Context);
+    
     useEffect(() => {
 
-        const API_KEY = "AIzaSyCsWR92HaLnzPKP3wFCPU6HIM6eietQ0kI"
-        const results = fetch(`https://tenor.googleapis.com/v2/search?q=Sōsō no Frieren&key=${API_KEY}&client_key=IntegracionGifs&limit=8`)
-    
-        results.then(resp => resp.json())
-        .then (data => {
-            console.log(data)
-            const arrayRaw = data.results;
-            const defArray = []
-            arrayRaw.forEach(element => {
-                defArray.push({id : element.id , url: element.media_formats.gif.url})
-            })
-            setData(defArray);
-        })
-        .catch(console.warn)
-      }, [])
+        if(items != undefined){
+            if(items.length > 0){
+                console.log(items)
+                const API_KEY = "AIzaSyCsWR92HaLnzPKP3wFCPU6HIM6eietQ0kI"
+                const results = fetch(`https://tenor.googleapis.com/v2/search?q=${items}&key=${API_KEY}&client_key=IntegracionGifs&limit=50`)
+        
+                results.then(resp => resp.json())
+                .then (data => {
+                    console.log(data)
+                    const arrayRaw = data.results;
+                    const defArray = []
+                    arrayRaw.forEach(element => {
+                        defArray.push({id : element.id , url: element.media_formats.gif.url})
+                    })
+                    setData(defArray);
+                })
+                .catch(console.warn)
+            }
+        }
+
+      }, [items])
 
   return (
     <>
         <h1>Test URL</h1>
-        <SearchInput/>
+        <SearchInput setData = {setItems}/>
         <ol>
             {arrGifsUrl.map( gif => {
                 return<li key={gif.id}><img src={gif.url} height="500px"width="500px"/> </li>
